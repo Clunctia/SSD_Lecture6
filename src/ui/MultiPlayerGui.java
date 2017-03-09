@@ -58,11 +58,15 @@ public class MultiPlayerGui extends JFrame implements Observer {
 	}
 
 	public void startServer() {
-		// TODO: Complete the logic here
+		gameServer.start();
+		isServer = true;
+		infoText.setText("Server Started");
 	}
 
 	public void startClient() {
-		// TODO: Complete the logic here
+		gameClient.connect();
+		isClient = true;
+		infoText.setText("Client Connected");
 	}
 
 	private void initComponents() {
@@ -144,7 +148,16 @@ public class MultiPlayerGui extends JFrame implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO: Complete the logic here
+		if (arg.equals(Network.CONNECT)) {
+			game.start();
+			refreshGui();
+		}
+		
+		if (Game.class == arg.getClass()) {
+			this.game = (Game) arg;
+		}
+		
+		refreshGui();
 	}
 
 	public void refreshGui() {
@@ -159,13 +172,33 @@ public class MultiPlayerGui extends JFrame implements Observer {
 		}
 	}
 	
+	private int[] toPosition(MouseEvent e) {
+		int row = e.getY() / squareSize();
+		int col = e.getX() / squareSize();
+		return new int[]{row, col};
+	}
+	
 	private class MouseHandler extends MouseAdapter {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			int row = e.getY() / squareSize();
-			int col = e.getX() / squareSize();
-			// TODO: Complete the logic here
+			if (!(isServer && game.isP1Turn()) || (isClient && game.isP2Turn())) {
+				return;
+			}
+			if (game.isEnd()) {
+				return;
+			}
+			
+			int[] pos = toPosition(e);
+			try {
+				game.currentPlayerTakesAction(pos[0], pos[1]);
+			} catch (NullPointerException ne) {
+				System.out.println("game not start");
+			}
+			
+			refreshGui();
+			gameServer.send(game);
+			gameClient.send(game);
 		}
 	}
 	

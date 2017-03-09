@@ -32,6 +32,7 @@ public class Gui extends JFrame {
 	public void start() {
 		game = new Game();
 		// TODO: Start the game
+		game.start();
 		pack();
 		setVisible(true);
 	}
@@ -47,6 +48,9 @@ public class Gui extends JFrame {
 				drawSymbols(g);
 			}
 		};
+		
+		//mainPanel.repaint(); to refresh
+		
 		mainPanel.setPreferredSize(new Dimension(WINDOW_SIZE, WINDOW_SIZE));
 		mainPanel.addMouseListener(new MouseHandler());
 		setLayout(new BorderLayout());
@@ -87,7 +91,7 @@ public class Gui extends JFrame {
 		return WINDOW_SIZE / Game.BOARD_SIZE;
 	}
 	
-	private void showGameOverMessgage() {
+	private void showGameOverMessage() {
 		JOptionPane.showMessageDialog(this, game.getWinnerName() + " Win!");
 	}
 	
@@ -95,9 +99,18 @@ public class Gui extends JFrame {
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
-			int row = e.getY() / squareSize();
-			int col = e.getX() / squareSize();
-			// TODO: Complete the logic of the game here
+			if(!game.isEnd()){
+				int row = e.getY() / squareSize();
+				int col = e.getX() / squareSize();
+				// TODO: Complete the logic of the game here
+				game.currentPlayerTakesAction(row, col);
+				mainPanel.repaint();
+				
+				if(game.isEnd()){
+					showGameOverMessage();
+					return;
+				}
+			}
 		}	
 	}
 	
