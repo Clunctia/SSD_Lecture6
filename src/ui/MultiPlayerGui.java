@@ -172,33 +172,23 @@ public class MultiPlayerGui extends JFrame implements Observer {
 		}
 	}
 	
-	private int[] toPosition(MouseEvent e) {
-		int row = e.getY() / squareSize();
-		int col = e.getX() / squareSize();
-		return new int[]{row, col};
-	}
-	
 	private class MouseHandler extends MouseAdapter {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if (!(isServer && game.isP1Turn()) || (isClient && game.isP2Turn())) {
+			if(!((isServer && game.isP1Turn()) || (isClient && game.isP2Turn()))) {
 				return;
-			}
-			if (game.isEnd()) {
-				return;
-			}
+			} 
 			
-			int[] pos = toPosition(e);
-			try {
-				game.currentPlayerTakesAction(pos[0], pos[1]);
-			} catch (NullPointerException ne) {
-				System.out.println("game not start");
+			int row = e.getY() / squareSize();
+			int col = e.getX() / squareSize();
+			if (!game.isEnd()) {
+				game.currentPlayerTakesAction(row, col);
+				repaint();
+				refreshGui();
+				gameServer.send(game);
+				gameClient.send(game);				
 			}
-			
-			refreshGui();
-			gameServer.send(game);
-			gameClient.send(game);
 		}
 	}
 	
